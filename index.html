@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DixLearn - Aplicación educativa para mejorar la lectura y escritura de estudiantes con dislexia en Panamá">
+    <title>DixLearn - Makes You Learn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+            --card-bg: white;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Open Sans', 'Arial', sans-serif;
+            line-height: 1.8;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+        }
+
+        /* Dyslexia-friendly mode */
+        body.dyslexia-mode {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            letter-spacing: 0.05em;
+            word-spacing: 0.1em;
+            line-height: 2.2;
+        }
+
+        body.dyslexia-mode p,
+        body.dyslexia-mode li {
+            font-size: 1.3rem;
+        }
+
+        /* Accessibility Panel */
+        .accessibility-panel {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 1rem;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .accessibility-panel button {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .accessibility-panel button:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .accessibility-panel button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 998;
+        }
+
+        .scroll-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        /* Navegación */
+        nav {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        nav a:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Header */
+        header {
+            margin-top: 80px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .logo-container {
+            background: white;
+            border-radius: 50%;
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: contain;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        header .tagline {
+            font-size: 1.8rem;
+            font-style: italic;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: var(--primary-color);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Secciones generales */
+        section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 4px solid var(--primary-color);
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+        }
+
+        /* About Section */
+        #about {
+            background: white;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .about-text {
+            font-size: 1.2rem;
+            text-align: justify;
+        }
+
+        .about-image img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .about-image img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Statistics */
+        #statistics {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #f5576c 100%);
+            color: white;
+        }
+
+        #statistics h2 {
+            color: white;
+            border-bottom-color: white;
+        }
+
+        #statistics h2::after {
+            background: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .feature-card:hover {
+            transform: perspective(1000px) rotateY(5deg) translateY(-10px);
+            box-shadow: -10px 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .feature-card p {
+            text-align: justify;
+        }
+
+        /* Games Section */
+        #games {
+            background: #f9f9f9;
+        }
+
+        .game-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .game-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .game-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        }
+
+        .game-item h4 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-item p {
+            text-align: justify;
+        }
+
+        /* Problems & Solutions */
+        .problems-solutions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .problem-box, .solution-box {
+            padding: 2rem;
+            border-radius: 15px;
+        }
+
+        .problem-box {
+            background: #ffe6e6;
+            border: 2px solid #ff6b6b;
+        }
+
+        .solution-box {
+            background: #e6ffe6;
+            border: 2px solid #51cf66;
+        }
+
+        .problem-box h3 {
+            color: #c92a2a;
+        }
+
+        .solution-box h3 {
+            color: #2b8a3e;
+        }
+
+        .problem-box ul, .solution-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .problem-box li, .solution-box li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .problem-box li::before {
+            content: '✗';
+            position: absolute;
+            left: 0;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .solution-box li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #51cf66;
+            font-weight: bold;
+        }
+
+        /* Benefits */
+        #benefits {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .benefit-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+
+        .benefit-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .benefit-item h4 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .benefit-item p {
+            text-align: justify;
+        }
+
+        /* Team Section */
+        #team {
+            background: white;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .team-member {
+            padding: 2rem;
+            background: #f5f5f5;
+            border-radius: 15px;
+            transition: var(--transition);
+        }
+
+        .team-member:hover {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .team-member h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Famous People Carousel */
+        .carousel-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 3rem auto;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            background: white;
+        }
+
+        .famous-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .famous-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .famous-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.1);
+            transition: var(--transition);
+        }
+
+        .famous-card:hover img {
+            filter: grayscale(0%) contrast(1);
+        }
+
+        .famous-card-content {
+            padding: 1.5rem;
+        }
+
+        .famous-card h4 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .famous-card p {
+            color: #666;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: var(--transition);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-btn.prev {
+            left: 20px;
+        }
+
+        .carousel-btn.next {
+            right: 20px;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .carousel-indicator.active {
+            background: var(--primary-color);
+            width: 30px;
+            border-radius: 6px;
+        }
+
+        /* Contact */
+        #contact {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            text-align: center;
+        }
+
+        #contact h2 {
+            color: white;
+            border-bottom-color: white;
+        }
+
+        #contact h2::after {
+            background: white;
+        }
+
+        .contact-info {
+            font-size: 1.3rem;
+            margin-top: 2rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-content,
+            .problems-solutions {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            section {
+                padding: 2rem 1rem;
+            }
+
+            .accessibility-panel {
+                left: 10px;
+                padding: 0.5rem;
+            }
+
+            .accessibility-panel button {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .carousel-slide {
+                grid-template-columns: 1fr;
+            }
+
+            .carousel-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .carousel-btn.prev {
+                left: 10px;
+            }
+
+            .carousel-btn.next {
+                right: 10px;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Dyslexia-friendly adjustments */
+        p, li {
+            font-size: 1.2rem;
+            line-height: 2;
+        }
+
+        /* Justificar párrafos generales */
+        p {
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        /* Mantener listas sin justificar para mejor legibilidad */
+        li {
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Títulos centrados */
+        h1, h2, h3, h4 {
+            text-align: center;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Image placeholder styling */
+        .img-placeholder {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border-radius: 15px;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Accessibility Panel -->
+    <div class="accessibility-panel">
+        <button onclick="toggleDyslexiaMode()" title="Modo Dislexia" id="dyslexiaBtn">
+            <i class="fas fa-eye"></i>
+        </button>
+        <button onclick="changeFontSize(1)" title="Aumentar texto" id="fontIncreaseBtn">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button onclick="changeFontSize(-1)" title="Disminuir texto" id="fontDecreaseBtn">
+            <i class="fas fa-minus"></i>
+        </button>
+        <button onclick="toggleAnimations()" title="Activar/Desactivar animaciones" id="animationBtn">
+            <i class="fas fa-play"></i>
+        </button>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top-btn" onclick="scrollToTop()" id="scrollTopBtn">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Navegación -->
+    <nav>
+        <ul>
+            <li><a href="#about">¿Qué es?</a></li>
+            <li><a href="#statistics">Estadísticas</a></li>
+            <li><a href="#features">Características</a></li>
+            <li><a href="#games">Juegos</a></li>
+            <li><a href="#benefits">Beneficios</a></li>
+            <li><a href="#team">Equipo</a></li>
+            <li><a href="#contact">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <!-- LOGO: Usa este link o reemplázalo con tu archivo local logo.png -->
+            <img src="https://cdn-icons-png.flaticon.com/512/3331/3331747.png" alt="DixLearn Logo">
+        </div>
+        <h1>DixLearn</h1>
+        <p class="tagline">"Makes you learn"</p>
+        <p>Transformando la educación para estudiantes con dislexia en Panamá mediante tecnología innovadora, gamificación y aprendizaje multisensorial</p>
+        <a href="#contact" class="cta-button">
+            <i class="fas fa-rocket"></i> Únete a DixLearn
+        </a>
+    </header>
+
+    <!-- About Section -->
+    <section id="about" class="fade-in">
+        <h2>¿Qué es DixLearn?</h2>
+        <div class="about-content">
+            <div class="about-text">
+                <p><strong>DixLearn</strong> es una herramienta digital diseñada específicamente para mejorar la escritura y la lectura de estudiantes con dislexia en Panamá.</p>
+               
+                <p>En un mundo donde las palabras pueden convertirse en laberintos y las letras parecen jugar al escondite, millones de personas enfrentan diariamente un desafío silencioso: la dislexia. Pero en medio de ese aparente caos, nace una herramienta que promete transformar la manera en que se aprende, se enseña y se comprende.</p>
+ 
+                <p><strong>Nuestra filosofía:</strong> Aprender diferente no significa aprender menos. La dislexia no es una enfermedad, es un súper poder que necesita ser comprendido y desarrollado.</p>
+ 
+                <h3>¿Por qué elegimos este tema?</h3>
+                <p>Elegimos este tema porque la dislexia, a pesar de su impacto profundo en la educación y en la vida cotidiana, sigue siendo una condición rodeada de mitos y desconocimiento. Sin embargo, con la tecnología adecuada, no solo es posible nivelar el terreno de aprendizaje, sino también empoderar a quienes viven con esta condición.</p>
+            </div>
+            <div class="about-image">
+                <div class="img-placeholder">
+                    <i class="fas fa-child"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section id="statistics" class="fade-in">
+        <h2>Estadísticas sobre Dislexia</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-target="15">0</div>
+                <div class="stat-label">% de la población mundial tiene dislexia</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="5.56">0</div>
+                <div class="stat-label">% Prevalencia en Panamá</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="3">0</div>
+                <div class="stat-label">Estudiantes con dislexia por aula</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="7.6">0</div>
+                <div class="stat-label">% de colegios tienen recursos adecuados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="12.1">0</div>
+                <div class="stat-label">% Tasa de deserción escolar en Panamá</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="50">0</div>
+                <div class="stat-label">% sabe qué es la dislexia</div>
+            </div>
+        </div>
+       
+        <div style="margin-top: 3rem; background: rgba(255,255,255,0.2); padding: 2rem; border-radius: 15px;">
+            <h3 style="color: white; margin-bottom: 1rem;">Resultados de Nuestro Estudio</h3>
+            <p>Tras un año de implementación con un programa similar a DixLearn (Core 5):</p>
+            <ul style="color: white; font-size: 1.2rem; margin-top: 1rem;">
+                <li><strong>Grupo tradicional:</strong> Pasó del 12% al 10% (-2 puntos porcentuales)</li>
+                <li><strong>Grupo con DixLearn:</strong> Aumentó del 16% al 32% (+16 puntos porcentuales)</li>
+                <li><strong>Motivación:</strong> Mayor nivel de motivación reportado</li>
+                <li><strong>Ansiedad:</strong> Reducción significativa al leer en voz alta</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="fade-in">
+        <h2>Características Principales</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="img-placeholder" style="margin-bottom: 1rem;">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3><i class="fas fa-gamepad"></i> Gamificación</h3>
+                <p>Aprendizaje divertido con recompensas, insignias y niveles que mantienen a los estudiantes motivados y comprometidos.</p>
+            </div>
+           
+            <div class="feature-card">
+                <div class="img-placeholder" style="margin-bottom: 1rem;">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3><i class="fas fa-brain"></i> Enfoque Multisensorial</h3>
+                <p>Utilizamos imágenes, sonidos y actividades táctiles para reforzar el aprendizaje desde múltiples perspectivas.</p>
+            </div>
+           
+            <div class="feature-card">
+                <div class="img-placeholder" style="margin-bottom: 1rem;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3><i class="fas fa-chart-line"></i> Personalización</h3>
+                <p>La aplicación ajusta la dificultad según el desempeño individual, manteniendo al alumno en su zona de aprendizaje óptima.</p>
+            </div>
+           
+            <div class="feature-card">
+                <div class="img-placeholder" style="margin-bottom: 1rem;">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3><i class="fas fa-chart-bar"></i> Seguimiento Detallado</h3>
+                <p>Docentes y padres pueden revisar progresos detallados: número de ejercicios completados, errores frecuentes y más.</p>
+            </div>
+           
+            <div class="feature-card">
+                <div class="img-placeholder" style="margin-bottom: 1rem;">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3><i class="fas fa-mobile-alt"></i> Accesibilidad Total</h3>
+                <p>Con dispositivos móviles, los alumnos pueden practicar en cualquier lugar y momento, favoreciendo la constancia.</p>
+            </div>
+           
+            <div class="feature-card">
+                <div class="img-placeholder" style="margin-bottom: 1rem;">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3><i class="fas fa-search"></i> Diagnóstico Temprano</h3>
+                <p>Tecnología de análisis que facilita la identificación de la dislexia en etapas tempranas, previniendo diagnósticos tardíos.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games" class="fade-in">
+        <h2>Juegos Interactivos Incluidos</h2>
+        <div class="game-list">
+            <div class="game-item">
+                <h4><i class="fas fa-puzzle-piece"></i> Puzzle de Palabras</h4>
+                <p>El usuario recibe piezas de letras y sílabas desordenadas y debe organizarlas correctamente para formar palabras. Al completarlo, aparece una animación explicando su significado y pronunciación.</p>
+            </div>
+           
+            <div class="game-item">
+                <h4><i class="fas fa-book-open"></i> Historias Interactivas</h4>
+                <p>Los jugadores toman el rol de un personaje que enfrenta situaciones cotidianas, como pedir comida en un restaurante o reservar un hotel. Sus decisiones cambian el rumbo de la historia y refuerzan la comprensión lectora.</p>
+            </div>
+           
+            <div class="game-item">
+                <h4><i class="fas fa-microphone-alt"></i> Misión de Pronunciación</h4>
+                <p>Un asistente virtual escucha y corrige la pronunciación sin penalizar errores. Cada palabra bien pronunciada suma puntos para desbloquear niveles superiores.</p>
+            </div>
+           
+            <div class="game-item">
+                <h4><i class="fas fa-trophy"></i> Competencias Grupales</h4>
+                <p>Los usuarios pueden desafiar a amigos en juegos de vocabulario y gramática, obteniendo insignias y recompensas por su progreso. ¡Aprender juntos es más divertido!</p>
+            </div>
+        </div>
+       
+        <div style="margin-top: 3rem;">
+            <div class="img-placeholder" style="width: 100%; min-height: 300px;">
+                <i class="fas fa-vr-cardboard"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problems & Solutions -->
+    <section id="problems" class="fade-in">
+        <h2>Problemas que Resolvemos</h2>
+        <div class="problems-solutions">
+            <div class="problem-box">
+                <h3><i class="fas fa-times-circle"></i> Problemas Comunes</h3>
+                <ul>
+                    <li>Dificultad para recordar palabras</li>
+                    <li>Frustración al cometer errores</li>
+                    <li>Problemas con la segmentación de palabras</li>
+                    <li>Ansiedad en la pronunciación</li>
+                    <li>Falta de motivación en el aprendizaje tradicional</li>
+                    <li>Bajo rendimiento académico</li>
+                    <li>Pánico al leer en clase</li>
+                    <li>Aislamiento social</li>
+                </ul>
+            </div>
+           
+            <div class="solution-box">
+                <h3><i class="fas fa-check-circle"></i> Nuestras Soluciones</h3>
+                <ul>
+                    <li>Imágenes y sonidos para reforzar el aprendizaje</li>
+                    <li>Corrección positiva sin castigos, solo consejos amigables</li>
+                    <li>Juegos de construcción de palabras intuitivos</li>
+                    <li>Práctica con IA en ambiente relajado y sin presión</li>
+                    <li>Gamificación con recompensas gratificantes</li>
+                    <li>Mejora del rendimiento y autoestima</li>
+                    <li>Reducción de ansiedad al leer en voz alta</li>
+                    <li>Mayor integración en el aula</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="fade-in">
+        <h2>Beneficios de DixLearn</h2>
+        <div class="benefits-list">
+            <div class="benefit-item">
+                <h4><i class="fas fa-bullseye"></i> Diagnóstico Temprano y Preciso</h4>
+                <p>Incorporamos tecnología de análisis neurológico y cuestionarios especializados para facilitar la identificación de la dislexia en etapas tempranas, previniendo diagnósticos inapropiados o tardíos.</p>
+            </div>
+           
+            <div class="benefit-item">
+                <h4><i class="fas fa-user-graduate"></i> Métodos de Aprendizaje Personalizados</h4>
+                <p>Ejercicios interactivos, juegos educativos y técnicas multisensoriales ajustadas al estilo de aprendizaje de cada individuo, favoreciendo tanto la lectura como la escritura.</p>
+            </div>
+           
+            <div class="benefit-item">
+                <h4><i class="fas fa-hands-helping"></i> Reducción del Aislamiento Académico</h4>
+                <p>Al mejorar el rendimiento académico y la autoestima, los estudiantes con dislexia logran integrarse más eficientemente en el aula, disminuyendo las posibilidades de rechazo o frustración.</p>
+            </div>
+           
+            <div class="benefit-item">
+                <h4><i class="fas fa-chalkboard-teacher"></i> Capacitación para Docentes y Padres</h4>
+                <p>Ofrecemos recursos destinados a educadores y familias, lo que les permite comprender mejor la dislexia y apoyar al niño de manera adecuada y efectiva.</p>
+            </div>
+           
+            <div class="benefit-item">
+                <h4><i class="fas fa-chart-line"></i> Seguimiento y Evaluación del Progreso</h4>
+                <p>Herramientas de seguimiento que permiten monitorear el desarrollo de cada usuario, adaptando el contenido a su ritmo y requerimientos específicos.</p>
+            </div>
+           
+            <div class="benefit-item">
+                <h4><i class="fas fa-heart"></i> Fortalecimiento de Autoestima</h4>
+                <p>No solo mejoramos el rendimiento académico, sino que también fortalecemos la autoestima, autonomía y motivación para aprender, generando un cambio real y medible en su vida escolar y personal.</p>
+            </div>
+        </div>
+       
+        <div style="margin-top: 3rem; text-align: center;">
+            <div class="img-placeholder" style="max-width: 800px; margin: 0 auto; min-height: 300px;">
+                <i class="fas fa-award"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Famous People with Dyslexia - CAROUSEL -->
+    <section id="famous" class="fade-in">
+        <h2>Mentes Brillantes con Dislexia</h2>
+        <p style="text-align: center; font-size: 1.2rem; margin-bottom: 2rem;">
+            La dislexia no es un límite, es un don. Muchas personas exitosas han transformado sus desafíos en fortalezas:
+        </p>
+       
+        <div class="carousel-container">
+            <button class="carousel-btn prev" onclick="moveCarousel(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn next" onclick="moveCarousel(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Slide 1 -->
+                <div class="carousel-slide">
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/640px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg" alt="Albert Einstein">
+                        <div class="famous-card-content">
+                            <h4>Albert Einstein</h4>
+                            <p>Creador de la teoría de la relatividad</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Steve_Jobs_Headshot_2010-CROP2_%28cropped%29.jpg/640px-Steve_Jobs_Headshot_2010-CROP2_%28cropped%29.jpg" alt="Steve Jobs">
+                        <div class="famous-card-content">
+                            <h4>Steve Jobs</h4>
+                            <p>CEO y cofundador de Apple</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg/640px-Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg" alt="Leonardo Da Vinci">
+                        <div class="famous-card-content">
+                            <h4>Leonardo Da Vinci</h4>
+                            <p>Pintor, inventor, científico del renacimiento</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 2 -->
+                <div class="carousel-slide">
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Steven_Spielberg_by_Gage_Skidmore.jpg/640px-Steven_Spielberg_by_Gage_Skidmore.jpg" alt="Steven Spielberg">
+                        <div class="famous-card-content">
+                            <h4>Steven Spielberg</h4>
+                            <p>Director y productor de cine</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Thomas_Edison2.jpg/640px-Thomas_Edison2.jpg" alt="Thomas Edison">
+                        <div class="famous-card-content">
+                            <h4>Thomas Edison</h4>
+                            <p>Inventor de la bombilla incandescente</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/John_Lennon_1969_%28cropped%29.jpg/640px-John_Lennon_1969_%28cropped%29.jpg" alt="John Lennon">
+                        <div class="famous-card-content">
+                            <h4>John Lennon</h4>
+                            <p>Músico, fundador de The Beatles</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 3 -->
+                <div class="carousel-slide">
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Pablo_Picasso_1962.jpg/640px-Pablo_Picasso_1962.jpg" alt="Pablo Picasso">
+                        <div class="famous-card-content">
+                            <h4>Pablo Picasso</h4>
+                            <p>Pintor y escultor español</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Agatha_Christie.png/640px-Agatha_Christie.png" alt="Agatha Christie">
+                        <div class="famous-card-content">
+                            <h4>Agatha Christie</h4>
+                            <p>Escritora británica</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Tom_Cruise_by_Gage_Skidmore_2.jpg/640px-Tom_Cruise_by_Gage_Skidmore_2.jpg" alt="Tom Cruise">
+                        <div class="famous-card-content">
+                            <h4>Tom Cruise</h4>
+                            <p>Actor estadounidense</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 4 -->
+                <div class="carousel-slide">
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Salma_Hayek_2010.jpg/640px-Salma_Hayek_2010.jpg" alt="Salma Hayek">
+                        <div class="famous-card-content">
+                            <h4>Salma Hayek</h4>
+                            <p>Actriz y productora</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Jamie_Oliver_2014.jpg/640px-Jamie_Oliver_2014.jpg" alt="Jamie Oliver">
+                        <div class="famous-card-content">
+                            <h4>Jamie Oliver</h4>
+                            <p>Chef británico</p>
+                        </div>
+                    </div>
+                    <div class="famous-card">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Stephen_Hawking.StarChild.jpg/640px-Stephen_Hawking.StarChild.jpg" alt="Stephen Hawking">
+                        <div class="famous-card-content">
+                            <h4>Stephen Hawking</h4>
+                            <p>Físico teórico y cosmólogo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="carousel-indicators" id="carouselIndicators">
+            <span class="carousel-indicator active" onclick="goToSlide(0)"></span>
+            <span class="carousel-indicator" onclick="goToSlide(1)"></span>
+            <span class="carousel-indicator" onclick="goToSlide(2)"></span>
+            <span class="carousel-indicator" onclick="goToSlide(3)"></span>
+        </div>
+       
+        <div style="margin-top: 3rem; background: #f0f0f0; padding: 2rem; border-radius: 15px; text-align: center;">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">"Los sueños no se leen, se hacen realidad"</h3>
+            <p style="font-style: italic; font-size: 1.2rem;">- Luz Rello, experta en dislexia</p>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="fade-in">
+        <h2>Nuestro Equipo</h2>
+        <p style="text-align: center; font-size: 1.2rem; margin-bottom: 2rem;">
+            Presentado por el equipo de Centro Supérate - Fundación Alberto Motta<br>
+            Colón, Panamá - Mayo 2025
+        </p>
+       
+        <div class="team-grid">
+            <div class="team-member">
+                <h4>Germainn Lugo</h4>
+            </div>
+            <div class="team-member">
+                <h4>Ayvi Solis</h4>
+            </div>
+            <div class="team-member">
+                <h4>Angel Ayarza</h4>
+            </div>
+            <!-- Dimarlis Morales REMOVIDO -->
+            <div class="team-member">
+                <h4>Yosibeth Hurtado</h4>
+            </div>
+            <div class="team-member">
+                <h4>Elias Appleton</h4>
+            </div>
+            <div class="team-member">
+                <h4>Jorhanys Flores</h4>
+            </div>
+            <div class="team-member">
+                <h4>Yamir Góndola</h4>
+            </div>
+        </div>
+       
+        <div style="margin-top: 3rem; text-align: center;">
+            <div class="img-placeholder" style="max-width: 600px; margin: 0 auto; min-height: 300px;">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research & Methodology -->
+    <section id="research" class="fade-in">
+        <h2>Investigación y Metodología</h2>
+        <div style="background: white; padding: 2rem; border-radius: 15px; margin-bottom: 2rem;">
+            <h3>Método de Investigación</h3>
+            <ol>
+                <li><strong>Definición del enfoque:</strong> Investigación cualitativa y cuantitativa para obtener una visión completa.</li>
+                <li><strong>Selección de fuentes:</strong> Utilizamos herramientas como Copilot, ChatGPT y búsquedas en Google especializadas.</li>
+                <li><strong>Recolección de datos:</strong> Consultamos sitios web especializados en dislexia y aplicaciones educativas.</li>
+                <li><strong>Análisis comparativo:</strong> Comparamos DixLearn con otras aplicaciones como Core 5, Number Dyslexia, LDRFA y Dyslexia.ai.</li>
+                <li><strong>Entrevistas:</strong> Hablamos con educadores y psicólogos para conocer sus impresiones sobre la app.</li>
+            </ol>
+        </div>
+       
+        <div style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; padding: 2rem; border-radius: 15px;">
+            <h3 style="color: white; margin-bottom: 1rem;">Hallazgos Clave</h3>
+            <ul style="font-size: 1.2rem;">
+                <li>El uso de DixLearn o herramientas similares duplica o triplica el avance en competencia lectora comparado con métodos tradicionales</li>
+                <li>La gamificación y los estímulos multisensoriales aumentan la motivación lectora y reducen la ansiedad</li>
+                <li>El seguimiento digital provee datos más precisos para personalizar intervenciones</li>
+                <li>Mejora la comunicación entre docentes y familias</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="fade-in">
+        <h2>Únete a la Revolución Educativa</h2>
+        <p style="font-size: 1.3rem; margin-bottom: 2rem;">
+            DixLearn ya ha sido aceptada por expertos. Es hora de llevar esta herramienta a más escuelas, centros pedagógicos y hogares en Panamá.
+        </p>
+       
+        <div class="contact-info">
+            <p><strong>"El éxito es la capacidad de ir de fracaso en fracaso sin perder el entusiasmo"</strong></p>
+            <p>- Winston Churchill</p>
+        </div>
+       
+        <div style="margin-top: 3rem; background: rgba(255,255,255,0.2); padding: 2rem; border-radius: 15px;">
+            <h3 style="color: white; margin-bottom: 1rem;">Nuestra Visión</h3>
+            <p style="font-size: 1.2rem;">
+                Queremos sanar poco a poco el corazón de cada persona disléxica de nuestra nación, mediante juegos y enseñanzas multisensoriales y personalizadas, que salven a las mentes que salvan nuestro presente y salvarán al país en un futuro.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 DixLearn - Makes You Learn. Todos los derechos reservados.</p>
+        <p style="margin-top: 1rem;">Centro Supérate - Fundación Alberto Motta | Colón, Panamá</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            "Aprender diferente no significa aprender menos"
+        </p>
+        <div style="margin-top: 1rem;">
+            <a href="#" style="margin: 0 0.5rem;"><i class="fab fa-facebook"></i></a>
+            <a href="#" style="margin: 0 0.5rem;"><i class="fab fa-twitter"></i></a>
+            <a href="#" style="margin: 0 0.5rem;"><i class="fab fa-instagram"></i></a>
+            <a href="#" style="margin: 0 0.5rem;"><i class="fas fa-envelope"></i></a>
+        </div>
+    </footer>
+
+    <!-- Script para smooth scroll y animaciones -->
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll to Top Button
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Carousel Functionality
+        let currentSlide = 0;
+        const totalSlides = 4;
+        const track = document.getElementById('carouselTrack');
+        const indicators = document.querySelectorAll('.carousel-indicator');
+
+        function moveCarousel(direction) {
+            currentSlide += direction;
+            
+            if (currentSlide < 0) {
+                currentSlide = totalSlides - 1;
+            } else if (currentSlide >= totalSlides) {
+                currentSlide = 0;
+            }
+            
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Auto-play carousel
+        setInterval(() => {
+            moveCarousel(1);
+        }, 6000);
+
+        // Animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Animate counters if it's a stat card
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach(stat => {
+                        const target = parseFloat(stat.getAttribute('data-target'));
+                        animateCounter(stat, target);
+                    });
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards and sections
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Counter animation function
+        function animateCounter(element, target, duration = 2000) {
+            if (element.classList.contains('counted')) return;
+            
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            const timer = setInterval(() => {
+                start += increment;
+                if (start >= target) {
+                    element.textContent = target + (target % 1 !== 0 ? '' : '');
+                    clearInterval(timer);
+                    element.classList.add('counted');
+                } else {
+                    element.textContent = start.toFixed(target % 1 !== 0 ? 2 : 0);
+                }
+            }, 16);
+        }
+
+        // Accessibility Features
+        let fontSizeLevel = 0;
+        let animationsEnabled = true;
+        let dyslexiaMode = false;
+
+        function toggleDyslexiaMode() {
+            dyslexiaMode = !dyslexiaMode;
+            document.body.classList.toggle('dyslexia-mode');
+            document.getElementById('dyslexiaBtn').classList.toggle('active');
+        }
+
+        function changeFontSize(direction) {
+            fontSizeLevel += direction;
+            if (fontSizeLevel < -2) fontSizeLevel = -2;
+            if (fontSizeLevel > 2) fontSizeLevel = 2;
+            
+            const baseSize = 16;
+            const newSize = baseSize + (fontSizeLevel * 2);
+            document.body.style.fontSize = newSize + 'px';
+            
+            document.getElementById('fontIncreaseBtn').classList.toggle('active', fontSizeLevel > 0);
+            document.getElementById('fontDecreaseBtn').classList.toggle('active', fontSizeLevel < 0);
+        }
+
+        function toggleAnimations() {
+            animationsEnabled = !animationsEnabled;
+            document.getElementById('animationBtn').classList.toggle('active');
+            
+            if (animationsEnabled) {
+                document.body.style.setProperty('--transition', 'all 0.3s ease');
+            } else {
+                document.body.style.setProperty('--transition', 'none');
+            }
+        }
+
+        // Add animation classes dynamically
+        document.querySelectorAll('.feature-card, .benefit-item, .stat-card, .game-item, .team-member, .famous-card').forEach(el => {
+            el.classList.add('fade-in');
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
